@@ -10,7 +10,7 @@ export default async function handler(req: Request) {
     }
 
     // ✅ مسیر درست + مدل
-    const model = "gpt-4o-realtime-preview-2024-12-17"; // یا "gpt-4o-realtime-preview" / "gpt-4o-mini-realtime-preview-2024-12-17"
+    const model = "gpt-realtime"; // یا "gpt-4o-realtime-preview" / "gpt-4o-mini-realtime-preview-2024-12-17"
     const r = await fetch(`https://api.openai.com/v1/realtime?model=${encodeURIComponent(model)}`, {
       method: "POST",
       headers: {
