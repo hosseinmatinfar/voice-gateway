@@ -1,5 +1,5 @@
 // api/realtime-sdp.ts  (Vercel Edge Function)
-// ⇨ SDP Offer از اپ می‌گیره، به OpenAI Realtime می‌فرسته، SDP Answer خام برمی‌گردونه.
+// ⇨ SDP Offer از اپ می‌گیرد، به OpenAI Realtime می‌فرستد، و SDP Answer خام برمی‌گرداند.
 
 export const config = { runtime: "edge" };
 
@@ -12,7 +12,6 @@ export default async function handler(req: Request) {
       return new Response("Empty SDP", { status: 400 });
     }
 
-    // مدل Realtime (در صورت نیاز تغییر بده)
     const model = "gpt-4o-realtime-preview-2024-12-17";
 
     const r = await fetch(
@@ -30,8 +29,10 @@ export default async function handler(req: Request) {
     );
 
     const answerSdp = await r.text();
+    const ok = r.status >= 200 && r.status < 300;
+    // موفق که بود، همیشه 200 بده تا کلاینت حسّاس گیر نکنه
     return new Response(answerSdp, {
-      status: r.status,
+      status: ok ? 200 : r.status,
       headers: { "Content-Type": "application/sdp" },
     });
   } catch (e: any) {
