@@ -1,12 +1,3 @@
 {
-  "version": 2,
-  "functions": {
-    "api/realtime-sdp.ts": {
-      "runtime": "edge",
-      "memory": 128
-    }
-  },
-  "routes": [
-    { "src": "/api/realtime-sdp", "dest": "/api/realtime-sdp.ts" }
-  ]
+  "version": 2
 }
