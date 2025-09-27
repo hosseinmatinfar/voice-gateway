@@ -1,3 +1,6 @@
+// api/realtime-sdp.ts  (Vercel Edge Function)
+// ⇨ SDP Offer از اپ می‌گیره، به OpenAI Realtime می‌فرسته، SDP Answer خام برمی‌گردونه.
+
 export const config = { runtime: "edge" };
 
 export default async function handler(req: Request) {
@@ -9,23 +12,27 @@ export default async function handler(req: Request) {
       return new Response("Empty SDP", { status: 400 });
     }
 
-    // ✅ مسیر درست + مدل
-    const model = "gpt-realtime"; // یا "gpt-4o-realtime-preview" / "gpt-4o-mini-realtime-preview-2024-12-17"
-    const r = await fetch(`https://api.openai.com/v1/realtime?model=${encodeURIComponent(model)}`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
-        "OpenAI-Beta": "realtime=v1",
-        "Content-Type": "application/sdp",
-        "Accept": "application/sdp"
-      },
-      body: offerSdp
-    });
+    // مدل Realtime (در صورت نیاز تغییر بده)
+    const model = "gpt-4o-realtime-preview-2024-12-17";
+
+    const r = await fetch(
+      `https://api.openai.com/v1/realtime?model=${encodeURIComponent(model)}`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.OPENAI_API_KEY ?? ""}`,
+          "OpenAI-Beta": "realtime=v1",
+          "Content-Type": "application/sdp",
+          "Accept": "application/sdp",
+        },
+        body: offerSdp,
+      }
+    );
 
     const answerSdp = await r.text();
     return new Response(answerSdp, {
       status: r.status,
-      headers: { "Content-Type": "application/sdp" }
+      headers: { "Content-Type": "application/sdp" },
     });
   } catch (e: any) {
     return new Response(`gateway error: ${e?.message || e}`, { status: 500 });
