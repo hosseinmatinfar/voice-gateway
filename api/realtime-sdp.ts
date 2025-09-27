@@ -1,34 +1,32 @@
-// File: api/create-voice-session.ts
+// api/create-voice-session.ts (Vercel Edge Function)
+// ⇨ SDP Offer کلاینت را به Agents API جدید OpenAI می‌فرستد.
 
 import { NextRequest } from "next/server";
 
 export const config = { runtime: "edge" };
 
 export default async function handler(req: NextRequest) {
-  // فقط متد POST را می‌پذیریم
   if (req.method !== "POST") {
     return new Response("Method Not Allowed", { status: 405 });
   }
 
   try {
-    // SDP Offer را از بدنه درخواست JSON می‌خوانیم
     const { sdp } = (await req.json()) as { sdp: string };
     if (!sdp) {
-      return new Response("SDP offer is required in the JSON body", { status: 400 });
+      return new Response("SDP offer is required", { status: 400 });
     }
 
-    // خواندن متغیرهای محیطی از تنظیمات Vercel
     const agentId = process.env.OPENAI_AGENT_ID;
     if (!agentId) {
-      return new Response("OPENAI_AGENT_ID environment variable is not set", { status: 500 });
+      return new Response("OPENAI_AGENT_ID is not set", { status: 500 });
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
-      return new Response("OPENAI_API_KEY environment variable is not set", { status: 500 });
+      return new Response("OPENAI_API_KEY is not set", { status: 500 });
     }
 
-    // ارسال درخواست به اندپوینت جدید و اختصاصی Agents API
+    // ارسال درخواست به اندپوینت جدید Agents API
     const response = await fetch(
       `https://api.openai.com/v1/agents/${agentId}/sessions`,
       {
@@ -36,10 +34,10 @@ export default async function handler(req: NextRequest) {
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${apiKey}`,
-          "OpenAI-Beta": "voice-agents=v1", // این هدر ممکن است لازم باشد
         },
         body: JSON.stringify({
-          offer: sdp, // SDP Offer کلاینت را اینجا قرار می‌دهیم
+          // SDP Offer کلاینت را در بدنه درخواست می‌فرستیم
+          offer: sdp,
         }),
       }
     );
@@ -56,9 +54,7 @@ export default async function handler(req: NextRequest) {
       status: 200,
       headers: { 
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*", // برای تست (در نسخه نهایی آدرس دامنه خود را بگذارید)
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Origin": "*", // برای تست
        },
     });
 
