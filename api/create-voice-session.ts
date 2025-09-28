@@ -1,15 +1,11 @@
-// File: api/create-voice-session.ts
-
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // متد درخواست را چک می‌کنیم
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
-    // بدنه درخواست را می‌خوانیم
     const { sdp } = req.body as { sdp: string };
     if (!sdp) {
       return res.status(400).json({ error: 'SDP offer is required' });
@@ -25,7 +21,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'OPENAI_API_KEY is not set' });
     }
 
-    // ارسال درخواست به اندپوینت Agents API
     const response = await fetch(
       `https://api.openai.com/v1/agents/${agentId}/sessions`,
       {
@@ -46,8 +41,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const data = await response.json();
-    
-    // ارسال پاسخ موفقیت‌آمیز به کلاینت
     return res.status(200).json(data);
 
   } catch (e: any) {
